@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role.Companion.Image
@@ -56,8 +57,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-val applicationContext: Context = MainActivity()
 
 @Composable
 fun LoginScreen() {
@@ -104,6 +103,7 @@ fun LoginScreen() {
         Row(
             modifier = Modifier.fillMaxWidth()
         ) {
+            val applicationContext: Context = LocalContext.current
             Button(
                 onClick = {
                     val intent = Intent(applicationContext, RegisterActivity::class.java)
