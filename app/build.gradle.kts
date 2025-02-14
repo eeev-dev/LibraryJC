@@ -50,7 +50,12 @@ android {
 }
 
 dependencies {
-
+    runtimeOnly("androidx.compose.material:material-icons-extended:1.7.6")
+    implementation("com.google.code.gson:gson:2.8.9")
+    runtimeOnly("androidx.compose.foundation:foundation:1.5.1")
+    implementation("com.google.accompanist:accompanist-navigation-animation:0.30.1")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
+    implementation("androidx.navigation:navigation-compose:2.7.5")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
