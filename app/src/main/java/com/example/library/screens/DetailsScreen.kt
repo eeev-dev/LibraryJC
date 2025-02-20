@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,7 +23,6 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Send
-import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -33,31 +31,47 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
 import com.example.library.R
+import com.example.library.data.model.Place
+import com.example.library.viewmodel.PlaceViewModel
 
 @Composable
-fun DetailsScreen(navController: NavController, place: Place) {
+fun DetailsScreen(navController: NavController, id: Int, sharedViewModel: PlaceViewModel) {
+    val places by sharedViewModel.places.collectAsState()
+
+    // Проверяем, существует ли элемент с таким индексом
+    val place = places.find { it.id == id }
+
+    if (place != null) {
+        Main(navController, place)
+    } else {
+        Text(text = "Место не найдено")
+    }
+}
+
+@Composable
+fun Main(navController: NavController, place: Place) {
     // Оборачиваем содержимое в Box, чтобы кнопка всегда была внизу
     Box(modifier = Modifier.fillMaxSize()) {
         // Прокручиваемый контент
@@ -114,6 +128,12 @@ fun DetailsScreen(navController: NavController, place: Place) {
 
 @Composable
 fun ImageHead(place: Place, navController: NavController) {
+    val painter = rememberImagePainter(
+        data = place.imageLink,  // Здесь у нас URL картинки
+        builder = {
+            crossfade(true)  // Плавное появление при загрузке
+        }
+    )
     Card(
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp), // Тень
@@ -124,10 +144,10 @@ fun ImageHead(place: Place, navController: NavController) {
         Box(modifier = Modifier.fillMaxSize()) { // Оборачиваем в Box для позиционирования
             // Фото места
             Image(
-                painter = painterResource(id = place.imageLink), // Замените на ваше изображение
-                contentDescription = "Фон",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop // Масштабирование изображения
+                painter = painter,
+                contentDescription = "Изображение места",
+                modifier = Modifier.fillMaxWidth(),
+                contentScale = ContentScale.Crop  // Масштабирование изображения
             )
 
             // Иконка "Добавить в избранное"
@@ -149,7 +169,6 @@ fun ImageHead(place: Place, navController: NavController) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth() // Растягиваем по ширине
-                    .height(120.dp) // Высота блока
                     .align(Alignment.BottomCenter) // Прижимаем к низу и центру
                     .padding(16.dp) // Отступы внутри бокса
                     .background(
@@ -157,43 +176,49 @@ fun ImageHead(place: Place, navController: NavController) {
                         shape = RoundedCornerShape(16.dp) // Скругленные углы
                     )
             ) {
-                Column(modifier = Modifier.padding(start = 16.dp, bottom = 16.dp).align(Alignment.BottomStart)) {
-                    Text(
-                        text = place.place,
-                        fontFamily = interFont,
-                        fontSize = 24.sp,
-                        color = Color.White
-                    )
-                    Row {
-                        Icon(
-                            imageVector = Icons.Rounded.LocationOn,
-                            contentDescription = "Местоположение",
-                            tint = colorResource(R.color.pale_grey) // Цвет иконки
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(
+                        modifier = Modifier.weight(3f).padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
+                    ) {
+                        Text(
+                            text = place.place,
+                            fontFamily = interFont,
+                            fontSize = 24.sp,
+                            color = Color.White
+                        )
+                        Row {
+                            Icon(
+                                imageVector = Icons.Rounded.LocationOn,
+                                contentDescription = "Местоположение",
+                                tint = colorResource(R.color.pale_grey) // Цвет иконки
+                            )
+                            Text(
+                                text = place.country,
+                                fontFamily = robotoFont,
+                                fontSize = 18.sp,
+                                color = colorResource(R.color.pale_grey)
+                            )
+                        }
+                    }
+
+                    Column(
+                        modifier = Modifier.padding(end = 16.dp, bottom = 16.dp).weight(2f)
+                    ) {
+                        Text(
+                            text = "Цена",
+                            color = colorResource(R.color.pale_grey),
+                            fontFamily = robotoFont,
+                            fontSize = 16.sp,
+                            modifier = Modifier.align(Alignment.End)
                         )
                         Text(
-                            text = place.country,
+                            text = "$${place.price}",
+                            color = colorResource(R.color.pale_grey),
                             fontFamily = robotoFont,
-                            fontSize = 18.sp,
-                            color = colorResource(R.color.pale_grey)
+                            fontSize = 20.sp,
+                            modifier = Modifier.align(Alignment.End)
                         )
                     }
-                }
-
-                Column(modifier = Modifier.padding(end = 16.dp, bottom = 16.dp).align(Alignment.BottomEnd)) {
-                    Text(
-                        text = "Цена",
-                        color = colorResource(R.color.pale_grey),
-                        fontFamily = robotoFont,
-                        fontSize = 16.sp,
-                        modifier = Modifier.align(Alignment.End)
-                    )
-                    Text(
-                        text = "$${place.price}",
-                        color = colorResource(R.color.pale_grey),
-                        fontFamily = robotoFont,
-                        fontSize = 20.sp,
-                        modifier = Modifier.align(Alignment.End)
-                    )
                 }
             }
         }

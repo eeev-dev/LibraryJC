@@ -1,23 +1,13 @@
 package com.example.library.screens
 
 import android.app.Activity
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color.parseColor
-import android.graphics.RenderEffect
-import android.graphics.Shader
-import android.os.Build
-import android.util.AttributeSet
-import android.view.View
-import android.view.ViewGroup
+import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.BackHandler
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -25,102 +15,69 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.LocationOn
-import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarColors
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.BlurredEdgeTreatment
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asComposeRenderEffect
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.createFontFamilyResolver
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.graphics.toColor
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
 import com.example.library.R
+import com.example.library.data.model.Place
+import com.example.library.viewmodel.PlaceViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.gson.Gson
 
-data class Place(
-    val place: String,
-    val city: String,
-    val country: String,
-    val rating: Double,
-    val isFavorite: Boolean,
-    val price: Int,
-    val duration: Int,
-    val temperature: Int,
-    val description: String,
-    val imageLink: Int
-)
-
 @Composable
-fun MainScreen(navController: NavController) {
+fun MainScreen(navController: NavController, sharedViewModel: PlaceViewModel) {
     val context = LocalContext.current
+
+    val places by sharedViewModel.places.collectAsState()
 
     // Перехватываем кнопку "Назад"
     BackHandler {
@@ -130,8 +87,6 @@ fun MainScreen(navController: NavController) {
 
     val systemUiController = rememberSystemUiController()
 
-    val poppinsFamily = FontFamily(Font(R.font.poppins))
-
     SideEffect {
         systemUiController.setSystemBarsColor(
             color = Color.White,
@@ -139,6 +94,14 @@ fun MainScreen(navController: NavController) {
         )
     }
 
+    if (places.isEmpty()) Text("Загрузка")
+    else MainContent(navController, places)
+
+}
+
+@Composable
+fun MainContent(navController: NavController, places: List<Place>) {
+    val poppinsFamily = FontFamily(Font(R.font.poppins))
     Box(
         Modifier
             .background(Color.White)
@@ -158,7 +121,7 @@ fun MainScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(10.dp))
             HorizontalScrollView()
             Spacer(modifier = Modifier.height(20.dp))
-            Places(navController)
+            Places(navController, places)
             BottomDrawer()
         }
     }
@@ -338,8 +301,8 @@ fun ButtonItem(
 }
 
 @Composable
-fun Places(navController: NavController) {
-    val fuji = Place(
+fun Places(navController: NavController, places: List<Place>) {
+    /*val fuji = Place(
         place = "Гора Фудзи",
         city = "Токио",
         country = "Япония",
@@ -394,24 +357,29 @@ fun Places(navController: NavController) {
         приключение, которое требует хорошей физической подготовки и уважения к силам природы.
     """.trimIndent(),
         R.drawable.andy
-    )
+    )*/
 
-    val scrollState = rememberScrollState()
-    // Оборачиваем Row в horizontalScroll
-    Row(
+    LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .horizontalScroll(scrollState), // Включаем горизонтальную прокрутку
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)  // Расстояние между элементами
     ) {
-        PlaceItem(fuji, navController)
-        PlaceItem(andes, navController)
+        items(places) { place ->
+            PlaceItem(place, navController)  // Отображаем PlaceItem для каждого элемента списка
+        }
     }
 }
 
 @Composable
 fun PlaceItem(place: Place, navController: NavController) {
-    val placeJson = Gson().toJson(place)
+    val deepLinkUri = Uri.parse("android-app://androidx.navigation/details_screen/${place.id}")
+    val painter = rememberImagePainter(
+        data = place.imageLink,  // Здесь у нас URL картинки
+        builder = {
+            crossfade(true)  // Плавное появление при загрузке
+        }
+    )
     Card(
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp), // Тень
@@ -422,13 +390,14 @@ fun PlaceItem(place: Place, navController: NavController) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .clickable { navController.navigate("details_screen/$placeJson") }) { // Оборачиваем в Box для позиционирования
+                .clickable { navController.navigate(deepLinkUri) }) { // Оборачиваем в Box для позиционирования
+
             // Фото места
             Image(
-                painter = painterResource(id = place.imageLink), // Замените на ваше изображение
-                contentDescription = "Фон",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop // Масштабирование изображения
+                painter = painter,
+                contentDescription = "Изображение места",
+                modifier = Modifier.fillMaxWidth(),
+                contentScale = ContentScale.Crop  // Масштабирование изображения
             )
 
             // Иконка "Добавить в избранное"
@@ -444,7 +413,6 @@ fun PlaceItem(place: Place, navController: NavController) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth() // Растягиваем по ширине
-                    .height(120.dp) // Высота блока
                     .align(Alignment.BottomCenter) // Прижимаем к низу и центру
                     .padding(16.dp) // Отступы внутри бокса
                     .background(
@@ -468,6 +436,7 @@ fun PlaceItem(place: Place, navController: NavController) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
+                            modifier = Modifier.weight(1f),
                             imageVector = Icons.Rounded.LocationOn,
                             contentDescription = "Местоположение",
                             tint = colorResource(R.color.pale_grey) // Цвет иконки
@@ -477,14 +446,16 @@ fun PlaceItem(place: Place, navController: NavController) {
                             color = colorResource(R.color.pale_grey),
                             fontSize = 12.sp,
                             fontFamily = robotoFont,
-                            modifier = Modifier.padding(end = 15.dp)
+                            modifier = Modifier.weight(3f)
                         )
                         Icon(
+                            modifier = Modifier.weight(1f),
                             imageVector = Icons.Rounded.Star,
                             contentDescription = "Избранное",
                             tint = colorResource(R.color.pale_grey) // Цвет иконки
                         )
                         Text(
+                            modifier = Modifier.weight(1f),
                             text = place.rating.toString(),
                             color = colorResource(R.color.pale_grey),
                             fontSize = 12.sp,

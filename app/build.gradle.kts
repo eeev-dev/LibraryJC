@@ -50,6 +50,13 @@ android {
 }
 
 dependencies {
+    implementation("io.coil-kt:coil-compose:2.1.0")
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.0")  // Для работы с LiveData и State
+    implementation("androidx.compose.runtime:runtime:1.5.0")  // Основная зависимость для работы с State
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     runtimeOnly("androidx.compose.material:material-icons-extended:1.7.6")
     implementation("com.google.code.gson:gson:2.8.9")
     runtimeOnly("androidx.compose.foundation:foundation:1.5.1")
