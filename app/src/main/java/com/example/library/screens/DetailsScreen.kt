@@ -146,7 +146,7 @@ fun ImageHead(place: Place, navController: NavController) {
             Image(
                 painter = painter,
                 contentDescription = "Изображение места",
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop  // Масштабирование изображения
             )
 

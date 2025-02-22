@@ -13,7 +13,7 @@ import com.example.library.viewmodel.PlaceViewModel
 
 @Composable
 fun AppNavHost(navController: NavHostController) {
-    val sharedViewModel: PlaceViewModel = viewModel()
+    val sharedViewModel: PlaceViewModel = viewModel(factory = PlaceViewModel.factory)
     NavHost(navController = navController, startDestination = "preview_screen") {
         composable("preview_screen") { PreviewScreen(navController) }
         composable("main_screen") { MainScreen(navController, sharedViewModel) }

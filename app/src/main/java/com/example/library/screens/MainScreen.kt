@@ -39,6 +39,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -62,6 +63,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -74,10 +76,13 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.gson.Gson
 
 @Composable
-fun MainScreen(navController: NavController, sharedViewModel: PlaceViewModel) {
+fun MainScreen(
+    navController: NavController,
+    placeViewModel: PlaceViewModel
+) {
     val context = LocalContext.current
 
-    val places by sharedViewModel.places.collectAsState()
+    val places by placeViewModel.places.collectAsState()
 
     // Перехватываем кнопку "Назад"
     BackHandler {
@@ -94,9 +99,18 @@ fun MainScreen(navController: NavController, sharedViewModel: PlaceViewModel) {
         )
     }
 
-    if (places.isEmpty()) Text("Загрузка")
+    if (places.isEmpty()) LoadingScreen()
     else MainContent(navController, places)
+}
 
+@Composable
+fun LoadingScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()  // Круговой индикатор загрузки
+    }
 }
 
 @Composable
@@ -302,63 +316,6 @@ fun ButtonItem(
 
 @Composable
 fun Places(navController: NavController, places: List<Place>) {
-    /*val fuji = Place(
-        place = "Гора Фудзи",
-        city = "Токио",
-        country = "Япония",
-        rating = 4.9,
-        isFavorite = true,
-        price = 230, // Подъем на гору бесплатный, но есть расходы на транспорт и снаряжение
-        duration = 8, // В среднем восхождение занимает 6-8 часов
-        temperature = -5, // На вершине даже летом температура может быть отрицательной
-        description = """
-        Гора Фудзи — это не только высочайшая вершина Японии (3,776 м), но и важнейший символ страны. 
-        Она давно стала объектом поклонения и местом для медитации, будучи священной для японцев. 
-        Её идеальная конусообразная форма привлекает туристов и фотографов со всего мира. 
-        Гора является активным вулканом, последний раз извергавшимся более 300 лет назад, но её 
-        присутствие в культуре Японии остаётся значимым и по сей день.
-        
-        Восхождение на Фудзи — это не только физический вызов, но и духовное путешествие. 
-        Тысячи людей ежегодно совершают подъем, чтобы насладиться великолепием природы и увидеть 
-        восход солнца с её вершины. В летний сезон открыты несколько маршрутов, и опытные альпинисты 
-        могут выбрать более сложные пути. Температура на вершине, даже в жаркие летние месяцы, может 
-        опускаться до отрицательных значений, поэтому важно подготовиться к холодным условиям.
-        
-        Для туристов, не желающих подниматься на саму вершину, доступны виды на гору с окрестных 
-        холмов и смотровых площадок. Многие путешественники также выбирают путешествие по окрестным 
-        районам, чтобы посетить храмы и горячие источники, которые добавляют магии и уединения в 
-        это восхитительное место.
-    """.trimIndent(),
-        R.drawable.fuji
-    )
-
-    val andes = Place(
-        place = "Анды",
-        city = "Куско",
-        country = "Перу",
-        rating = 4.8,
-        isFavorite = false,
-        price = 200, // Ориентировочная стоимость похода в зависимости от маршрута
-        duration = 72, // Длительность треков может варьироваться от нескольких дней до недель
-        temperature = 10, // Средняя температура в горах зависит от высоты и сезона
-        description = """
-        Анды — одна из величайших горных цепей мира, протягивающаяся на более чем 7,000 км вдоль западного побережья Южной Америки. 
-        Здесь сосредоточены одни из самых захватывающих и труднодоступных ландшафтов на планете, которые привлекают тысячи туристов 
-        и альпинистов каждый год. Анды являются родиной древней цивилизации инков и оставили после себя впечатляющие памятники и руины, 
-        включая знаменитую крепость Мачу-Пикчу, расположенную на одном из вершинных хребтов.
-        
-        Этот горный регион также известен своими уникальными экосистемами, от туманных лесов в низинах до заснеженных вершин. 
-        В Андах можно встретить разнообразие флоры и фауны, включая редких животных, таких как ламы, альпаки и викуньи. 
-        Популярные маршруты для треккинга, такие как Инкский трек, предлагают путешественникам возможность погрузиться в природу, 
-        исследуя древние руины и наслаждаясь потрясающими видами.
-        
-        Температура в горах может сильно колебаться в зависимости от высоты и времени года. В зимний период температуры могут опускаться 
-        ниже нуля на вершинах, в то время как в низинах может быть достаточно тепло. Треккинг и альпинизм в Андах — это незабываемое 
-        приключение, которое требует хорошей физической подготовки и уважения к силам природы.
-    """.trimIndent(),
-        R.drawable.andy
-    )*/
-
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
@@ -396,7 +353,7 @@ fun PlaceItem(place: Place, navController: NavController) {
             Image(
                 painter = painter,
                 contentDescription = "Изображение места",
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop  // Масштабирование изображения
             )
 
