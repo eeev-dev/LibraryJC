@@ -9,21 +9,21 @@ import androidx.navigation.navDeepLink
 import com.example.library.screens.DetailsScreen
 import com.example.library.screens.MainScreen
 import com.example.library.screens.PreviewScreen
-import com.example.library.viewmodel.PlaceViewModel
+import com.example.library.viewmodel.DetailsViewModel
+import com.example.library.viewmodel.MainViewModel
 
 @Composable
 fun AppNavHost(navController: NavHostController) {
-    val sharedViewModel: PlaceViewModel = viewModel(factory = PlaceViewModel.factory)
     NavHost(navController = navController, startDestination = "preview_screen") {
         composable("preview_screen") { PreviewScreen(navController) }
-        composable("main_screen") { MainScreen(navController, sharedViewModel) }
+        composable("main_screen") { MainScreen(navController) }
         composable(
             "details_screen/{id}",
             deepLinks = listOf(navDeepLink { uriPattern = "android-app://androidx.navigation/details_screen/{id}" })
         ) { backStackEntry ->
             val idString = backStackEntry.arguments?.getString("id") ?: ""
             val id = idString.toIntOrNull() ?: 0
-            DetailsScreen(navController, id, sharedViewModel)
+            DetailsScreen(navController, id)
         }
     }
 }

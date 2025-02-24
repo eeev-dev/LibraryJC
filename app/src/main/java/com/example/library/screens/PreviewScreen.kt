@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -14,10 +13,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -58,18 +55,6 @@ fun PreviewScreen(navController: NavController) {
 
     val systemUiController = rememberSystemUiController()
 
-    /*// Устанавливаем цвета панели навигации и статус-бара
-    SideEffect {
-        systemUiController.setStatusBarColor(
-            color = colors[0], // Верхний цвет градиента
-            darkIcons = false // false, если нужен белый текст в статус-баре
-        )
-        systemUiController.setNavigationBarColor(
-            color = colors[1], // Нижний цвет градиента
-            darkIcons = false // false, если иконки должны быть белыми
-        )
-    }*/
-
     LaunchedEffect(Unit) {
         systemUiController.setStatusBarColor(color = colors[0], darkIcons = false)
         systemUiController.setNavigationBarColor(color = colors[1], darkIcons = false)
@@ -101,7 +86,9 @@ fun PreviewScreen(navController: NavController) {
                 Image(
                     bitmap = ImageBitmap.imageResource(R.drawable.travel),
                     contentDescription = "icon",
-                    Modifier.height(36.dp).width(36.dp)
+                    Modifier
+                        .height(36.dp)
+                        .width(36.dp)
                 )
             }
             Text(

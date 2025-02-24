@@ -6,7 +6,7 @@ data class Place(
     val city: String,
     val country: String,
     val rating: Double,
-    val isFavorite: Boolean,
+    var isFavorite: Boolean,
     val price: Double,
     val duration: Int,
     val temperature: Int,

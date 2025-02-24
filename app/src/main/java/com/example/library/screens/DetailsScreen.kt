@@ -27,6 +27,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -53,25 +54,30 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.library.R
+import com.example.library.data.local.toEntity
 import com.example.library.data.model.Place
-import com.example.library.viewmodel.PlaceViewModel
+import com.example.library.viewmodel.DetailsViewModel
+import com.example.library.viewmodel.MainViewModel
 
 @Composable
-fun DetailsScreen(navController: NavController, id: Int, sharedViewModel: PlaceViewModel) {
-    val places by sharedViewModel.places.collectAsState()
-
+fun DetailsScreen(
+    navController: NavController,
+    id: Int,
+    detailsViewModel: DetailsViewModel = viewModel(factory = DetailsViewModel.factory)
+) {
     // Проверяем, существует ли элемент с таким индексом
-    val place = places.find { it.id == id }
+    detailsViewModel.getPlace(id)
+    val place = detailsViewModel.place
 
     if (place != null) {
-        Main(navController, place)
+        Main(navController, place, detailsViewModel)
     } else {
-        Text(text = "Место не найдено")
+        CircularProgressIndicator()
     }
 }
 
 @Composable
-fun Main(navController: NavController, place: Place) {
+fun Main(navController: NavController, place: Place, viewModel: DetailsViewModel) {
     // Оборачиваем содержимое в Box, чтобы кнопка всегда была внизу
     Box(modifier = Modifier.fillMaxSize()) {
         // Прокручиваемый контент
@@ -80,7 +86,7 @@ fun Main(navController: NavController, place: Place) {
                 .padding(15.dp)
                 .verticalScroll(rememberScrollState()) // Это делает контент прокручиваемым
         ) {
-            ImageHead(place, navController)
+            ImageHead(place, navController, viewModel)
             HorizontalScroll()
             AdditionalInfo(place)
             Text(
@@ -127,7 +133,7 @@ fun Main(navController: NavController, place: Place) {
 }
 
 @Composable
-fun ImageHead(place: Place, navController: NavController) {
+fun ImageHead(place: Place, navController: NavController, viewModel: DetailsViewModel) {
     val painter = rememberImagePainter(
         data = place.imageLink,  // Здесь у нас URL картинки
         builder = {
@@ -151,10 +157,11 @@ fun ImageHead(place: Place, navController: NavController) {
             )
 
             // Иконка "Добавить в избранное"
-            var isFavorite by remember { mutableStateOf(place.isFavorite) }
+            var isLiked by remember { mutableStateOf(place.isFavorite) }
 
-            BookmarkIconButton(isFavorite = isFavorite) {
-                isFavorite = !isFavorite
+            BookmarkIconButton(isLiked) {
+                isLiked = !isLiked
+                viewModel.toLike(place.toEntity().copy(isFavorite = isLiked))
             }
 
             BackIconButton(navController)
@@ -178,7 +185,9 @@ fun ImageHead(place: Place, navController: NavController) {
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(
-                        modifier = Modifier.weight(3f).padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
+                        modifier = Modifier
+                            .weight(3f)
+                            .padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
                     ) {
                         Text(
                             text = place.place,
@@ -202,7 +211,9 @@ fun ImageHead(place: Place, navController: NavController) {
                     }
 
                     Column(
-                        modifier = Modifier.padding(end = 16.dp, bottom = 16.dp).weight(2f)
+                        modifier = Modifier
+                            .padding(end = 16.dp, bottom = 16.dp)
+                            .weight(2f)
                     ) {
                         Text(
                             text = "Цена",

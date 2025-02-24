@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.library.App
 import com.example.library.data.local.AppDatabase
+import com.example.library.data.local.PlaceEntity
 import com.example.library.data.local.toEntity
 import com.example.library.data.local.toPlace
 import com.example.library.data.model.Place
@@ -17,11 +18,15 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
-class PlaceViewModel(val database: AppDatabase) : ViewModel() {
+class MainViewModel(val database: AppDatabase) : ViewModel() {
     val itemsList = database.dao.getAllItems()
 
     private val _places = MutableStateFlow<List<Place>>(emptyList())
     val places: StateFlow<List<Place>> = _places
+
+    fun toLike(likedPlace: PlaceEntity) = viewModelScope.launch {
+        database.dao.insertItem(likedPlace)
+    }
 
     init {
         viewModelScope.launch {
@@ -37,6 +42,7 @@ class PlaceViewModel(val database: AppDatabase) : ViewModel() {
                     }
                     else {
                         Log.e("PlaceViewModel", "Беру данные из Room")
+                        // database.dao.insertItems(itemsList.map { it.copy(isFavorite = false) })
                         _places.value = itemsList.map { it.toPlace() }
                     }
                 }
@@ -64,7 +70,7 @@ class PlaceViewModel(val database: AppDatabase) : ViewModel() {
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
                 val database =
                     (checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]) as App).database
-                return PlaceViewModel(database) as T
+                return MainViewModel(database) as T
             }
         }
     }

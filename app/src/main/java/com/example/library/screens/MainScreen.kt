@@ -2,7 +2,6 @@ package com.example.library.screens
 
 import android.app.Activity
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -63,26 +62,26 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.example.library.R
+import com.example.library.data.local.toEntity
 import com.example.library.data.model.Place
-import com.example.library.viewmodel.PlaceViewModel
+import com.example.library.viewmodel.MainViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.google.gson.Gson
 
 @Composable
 fun MainScreen(
     navController: NavController,
-    placeViewModel: PlaceViewModel
+    mainViewModel: MainViewModel = viewModel(factory = MainViewModel.factory)
 ) {
     val context = LocalContext.current
 
-    val places by placeViewModel.places.collectAsState()
+    val places by mainViewModel.places.collectAsState()
 
     // Перехватываем кнопку "Назад"
     BackHandler {
@@ -100,7 +99,7 @@ fun MainScreen(
     }
 
     if (places.isEmpty()) LoadingScreen()
-    else MainContent(navController, places)
+    else MainContent(navController, mainViewModel, places)
 }
 
 @Composable
@@ -114,7 +113,7 @@ fun LoadingScreen() {
 }
 
 @Composable
-fun MainContent(navController: NavController, places: List<Place>) {
+fun MainContent(navController: NavController, mainViewModel: MainViewModel, places: List<Place>) {
     val poppinsFamily = FontFamily(Font(R.font.poppins))
     Box(
         Modifier
@@ -135,7 +134,16 @@ fun MainContent(navController: NavController, places: List<Place>) {
             Spacer(modifier = Modifier.height(10.dp))
             HorizontalScrollView()
             Spacer(modifier = Modifier.height(20.dp))
-            Places(navController, places)
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)  // Расстояние между элементами
+            ) {
+                items(places) { place ->
+                    PlaceItem(place = place, mainViewModel = mainViewModel, navController = navController)  // Отображаем PlaceItem для каждого элемента списка
+                }
+            }
             BottomDrawer()
         }
     }
@@ -315,28 +323,15 @@ fun ButtonItem(
 }
 
 @Composable
-fun Places(navController: NavController, places: List<Place>) {
-    LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)  // Расстояние между элементами
-    ) {
-        items(places) { place ->
-            PlaceItem(place, navController)  // Отображаем PlaceItem для каждого элемента списка
-        }
-    }
-}
-
-@Composable
-fun PlaceItem(place: Place, navController: NavController) {
+fun PlaceItem(place: Place, navController: NavController, mainViewModel: MainViewModel) {
     val deepLinkUri = Uri.parse("android-app://androidx.navigation/details_screen/${place.id}")
-    val painter = rememberImagePainter(
-        data = place.imageLink,  // Здесь у нас URL картинки
-        builder = {
+    val painter =
+        rememberAsyncImagePainter(ImageRequest.Builder(LocalContext.current).data(
+            data = place.imageLink  // Здесь у нас URL картинки
+        ).apply(block = fun ImageRequest.Builder.() {
             crossfade(true)  // Плавное появление при загрузке
-        }
-    )
+        }).build()
+        )
     Card(
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp), // Тень
@@ -357,11 +352,11 @@ fun PlaceItem(place: Place, navController: NavController) {
                 contentScale = ContentScale.Crop  // Масштабирование изображения
             )
 
-            // Иконка "Добавить в избранное"
-            var isFavorite by remember { mutableStateOf(place.isFavorite) }
+            var isLiked by remember { mutableStateOf(place.isFavorite) }
 
-            FavoriteIconButton(isFavorite = isFavorite) {
-                isFavorite = !isFavorite
+            FavoriteIconButton(isLiked) {
+                isLiked = !isLiked
+                mainViewModel.toLike(place.toEntity().copy(isFavorite = isLiked))
             }
 
             val robotoFont = FontFamily(Font(R.font.roboto, FontWeight.Normal))
@@ -426,7 +421,7 @@ fun PlaceItem(place: Place, navController: NavController) {
 }
 
 @Composable
-fun FavoriteIconButton(isFavorite: Boolean, onClick: () -> Unit) {
+fun FavoriteIconButton(isLiked: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -444,9 +439,9 @@ fun FavoriteIconButton(isFavorite: Boolean, onClick: () -> Unit) {
         ) {
             IconButton(onClick = onClick) {
                 Icon(
-                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                    imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                     contentDescription = "Избранное",
-                    tint = if (isFavorite) Color.Red else Color.White // Цвет иконки
+                    tint = if (isLiked) Color.Red else Color.White // Цвет иконки
                 )
             }
         }

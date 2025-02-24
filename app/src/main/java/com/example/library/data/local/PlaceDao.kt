@@ -20,4 +20,7 @@ interface PlaceDao {
 
     @Query("SELECT * FROM places")
     fun getAllItems(): Flow<List<PlaceEntity>>
+
+    @Query("SELECT * FROM places WHERE id = :id")
+    suspend fun getItem(id: Int): PlaceEntity?
 }

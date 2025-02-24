@@ -18,7 +18,7 @@ class ProductRepository {
                 city = if (product.brand != null) product.brand else "City",
                 country = product.category,
                 rating = product.rating,
-                isFavorite = Random.nextBoolean(), // Рандомное значение
+                isFavorite = false, 
                 price = product.price,
                 duration = product.stock,
                 temperature = product.weight,
