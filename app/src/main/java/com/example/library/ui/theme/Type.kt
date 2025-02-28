@@ -2,9 +2,17 @@ package com.example.library.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.example.library.R
+
+val poppinsFamily = FontFamily(Font(R.font.poppins))
+val interFont = FontFamily(Font(R.font.inter, FontWeight.Normal))
+val robotoFont = FontFamily(Font(R.font.roboto, FontWeight.Normal))
+val montserratFamily = FontFamily(Font(R.font.montserrat_bold, FontWeight.Bold))
+val lobsterFont = FontFamily(Font(R.font.lobster, FontWeight.Normal))
 
 // Set of Material typography styles to start with
 val Typography = Typography(

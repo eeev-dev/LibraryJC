@@ -31,18 +31,15 @@ class MainViewModel(val database: AppDatabase) : ViewModel() {
     init {
         viewModelScope.launch {
             try {
-                // Сбор данных из Flow
                 itemsList
                     .catch { e -> Log.e("PlaceViewModel", "Ошибка при загрузке данных из Room", e) }
                     .distinctUntilChanged()
                     .collect { itemsList ->
-                    // Если в Room нет данных, беру их с сервера
                     if (itemsList.isEmpty()) {
                         fetchPlaces()
                     }
                     else {
                         Log.e("PlaceViewModel", "Беру данные из Room")
-                        // database.dao.insertItems(itemsList.map { it.copy(isFavorite = false) })
                         _places.value = itemsList.map { it.toPlace() }
                     }
                 }
@@ -55,7 +52,6 @@ class MainViewModel(val database: AppDatabase) : ViewModel() {
     private fun fetchPlaces() {
         viewModelScope.launch {
             try {
-                // Запрос данных, например, из репозитория
                 _places.value = ProductRepository().getPlaces()
                 database.dao.insertItems(_places.value.map { it.toEntity() })
             } catch (e: Exception) {

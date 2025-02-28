@@ -1,4 +1,4 @@
-package com.example.library.screens
+package com.example.library.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,31 +24,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.library.R
+import com.example.library.ui.theme.lobsterFont
+import com.example.library.ui.theme.robotoFont
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
 fun PreviewScreen(navController: NavController) {
-    val colors = listOf(Color(0xFF0172B2), Color(0xFF001645))
+    val colors = listOf(colorResource(R.color.light_blue), colorResource(R.color.dark_blue))
 
     val gradientBrush = Brush.verticalGradient(
         colors = colors
-    )
-
-    val lobsterFont = FontFamily(
-        Font(R.font.lobster, FontWeight.Normal)
-    )
-
-    val robotoFont = FontFamily(
-        Font(R.font.roboto, FontWeight.Normal)
     )
 
     var rowWidth by remember { mutableIntStateOf(0) }
@@ -100,34 +92,6 @@ fun PreviewScreen(navController: NavController) {
                     .padding(top = 15.dp)
                     .width(with(LocalDensity.current) { rowWidth.toDp() + 60.dp })
             )
-        }
-    }
-}
-
-@Preview
-@Composable
-fun PreviewScreen() {
-    val gradientBrush = Brush.verticalGradient(
-        colors = listOf(Color(0xFF0172B2), Color(0xFF001645))
-    )
-
-    val lobsterFont = FontFamily(
-        Font(R.font.lobster, FontWeight.Normal)
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(gradientBrush)
-    ) {
-        Row (modifier = Modifier.align(Alignment.Center)) {
-            Text(
-                text = "Travel",
-                color = Color.White,
-                fontSize = 44.sp,
-                fontFamily = lobsterFont
-            )
-            Image(bitmap = ImageBitmap.imageResource(R.drawable.travel), contentDescription = "icon")
         }
     }
 }

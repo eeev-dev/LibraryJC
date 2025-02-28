@@ -6,4 +6,8 @@
     <color name="background_grey">#1D1D1D66</color>
     <color name="pale_grey">#CAC8C8</color>
     <color name="icon_grey">#848282</color>
+    <color name="light_blue">#0172B2</color>
+    <color name="dark_blue">#001645</color>
+    <color name="text_on_card">#A5A5A5</color>
+    <color name="almost_black">#1B1B1B</color>
 </resources>

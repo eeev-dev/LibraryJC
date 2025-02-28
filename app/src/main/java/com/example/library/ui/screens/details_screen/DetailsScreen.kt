@@ -1,4 +1,4 @@
-package com.example.library.screens
+package com.example.library.ui.screens.details_screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,26 +14,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.rounded.LocationOn
-import androidx.compose.material.icons.rounded.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,21 +38,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.example.library.R
 import com.example.library.data.local.toEntity
 import com.example.library.data.model.Place
+import com.example.library.ui.components.BackIconButton
+import com.example.library.ui.components.FavoriteIconButton
+import com.example.library.ui.theme.interFont
+import com.example.library.ui.theme.robotoFont
 import com.example.library.viewmodel.DetailsViewModel
-import com.example.library.viewmodel.MainViewModel
 
 @Composable
 fun DetailsScreen(
@@ -65,7 +62,6 @@ fun DetailsScreen(
     id: Int,
     detailsViewModel: DetailsViewModel = viewModel(factory = DetailsViewModel.factory)
 ) {
-    // Проверяем, существует ли элемент с таким индексом
     detailsViewModel.getPlace(id)
     val place = detailsViewModel.place
 
@@ -77,14 +73,16 @@ fun DetailsScreen(
 }
 
 @Composable
-fun Main(navController: NavController, place: Place, viewModel: DetailsViewModel) {
-    // Оборачиваем содержимое в Box, чтобы кнопка всегда была внизу
+fun Main(
+    navController: NavController,
+    place: Place,
+    viewModel: DetailsViewModel
+) {
     Box(modifier = Modifier.fillMaxSize()) {
-        // Прокручиваемый контент
         Column(
             modifier = Modifier
                 .padding(15.dp)
-                .verticalScroll(rememberScrollState()) // Это делает контент прокручиваемым
+                .verticalScroll(rememberScrollState())
         ) {
             ImageHead(place, navController, viewModel)
             HorizontalScroll()
@@ -92,19 +90,18 @@ fun Main(navController: NavController, place: Place, viewModel: DetailsViewModel
             Text(
                 text = place.description,
                 modifier = Modifier.padding(top = 15.dp, bottom = 50.dp),
-                fontFamily = FontFamily(Font(R.font.roboto, FontWeight.Normal)),
+                fontFamily = robotoFont,
                 fontSize = 18.sp,
                 color = Color(0xFFA5A5A5)
             )
         }
 
-        // Кнопка внизу экрана
         Button(
             onClick = { },
             modifier = Modifier
                 .padding(12.dp)
                 .height(50.dp)
-                .align(Alignment.BottomCenter), // Это фиксирует кнопку внизу
+                .align(Alignment.BottomCenter),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF1B1B1B),
                 contentColor = Color.White
@@ -118,14 +115,14 @@ fun Main(navController: NavController, place: Place, viewModel: DetailsViewModel
                 Text(
                     modifier = Modifier.weight(4f),
                     text = "Забронировать сейчас",
-                    fontFamily = FontFamily(Font(R.font.roboto, FontWeight.Normal)),
+                    fontFamily = robotoFont,
                     fontSize = 20.sp
                 )
                 Icon(
                     modifier = Modifier.weight(1f),
-                    imageVector = Icons.Rounded.Send,
+                    imageVector = Icons.AutoMirrored.Rounded.Send,
                     contentDescription = "Забронировать",
-                    tint = Color.White // Цвет иконки
+                    tint = Color.White
                 )
             }
         }
@@ -133,54 +130,51 @@ fun Main(navController: NavController, place: Place, viewModel: DetailsViewModel
 }
 
 @Composable
-fun ImageHead(place: Place, navController: NavController, viewModel: DetailsViewModel) {
-    val painter = rememberImagePainter(
-        data = place.imageLink,  // Здесь у нас URL картинки
-        builder = {
-            crossfade(true)  // Плавное появление при загрузке
-        }
+fun ImageHead(
+    place: Place,
+    navController: NavController,
+    viewModel: DetailsViewModel
+) {
+    val painter = rememberAsyncImagePainter(
+        ImageRequest.Builder(LocalContext.current)
+            .data(data = place.imageLink)
+            .apply(block = fun ImageRequest.Builder.() {
+                crossfade(true)
+            }
+        ).build()
     )
     Card(
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp), // Тень
+        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
         modifier = Modifier
             .fillMaxWidth()
             .height(400.dp)
     ) {
-        Box(modifier = Modifier.fillMaxSize()) { // Оборачиваем в Box для позиционирования
-            // Фото места
+        Box(modifier = Modifier.fillMaxSize()) {
             Image(
                 painter = painter,
                 contentDescription = "Изображение места",
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop  // Масштабирование изображения
+                contentScale = ContentScale.Crop
             )
 
-            // Иконка "Добавить в избранное"
             var isLiked by remember { mutableStateOf(place.isFavorite) }
 
-            BookmarkIconButton(isLiked) {
+            FavoriteIconButton(isLiked) {
                 isLiked = !isLiked
                 viewModel.toLike(place.toEntity().copy(isFavorite = isLiked))
             }
 
             BackIconButton(navController)
 
-            val robotoFont = FontFamily(Font(R.font.roboto, FontWeight.Normal))
-
-            val interFont = FontFamily(
-                Font(R.font.inter, FontWeight.Normal)
-            )
-
-            // Бокс, который должен быть прижат к низу
             Box(
                 modifier = Modifier
-                    .fillMaxWidth() // Растягиваем по ширине
-                    .align(Alignment.BottomCenter) // Прижимаем к низу и центру
-                    .padding(16.dp) // Отступы внутри бокса
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
                     .background(
-                        Color.Black.copy(alpha = 0.5f), // Прозрачный фон (40%)
-                        shape = RoundedCornerShape(16.dp) // Скругленные углы
+                        Color.Black.copy(alpha = 0.5f),
+                        shape = RoundedCornerShape(16.dp)
                     )
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -199,7 +193,7 @@ fun ImageHead(place: Place, navController: NavController, viewModel: DetailsView
                             Icon(
                                 imageVector = Icons.Rounded.LocationOn,
                                 contentDescription = "Местоположение",
-                                tint = colorResource(R.color.pale_grey) // Цвет иконки
+                                tint = colorResource(R.color.pale_grey)
                             )
                             Text(
                                 text = place.country,
@@ -237,77 +231,17 @@ fun ImageHead(place: Place, navController: NavController, viewModel: DetailsView
 }
 
 @Composable
-fun BookmarkIconButton(isFavorite: Boolean, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(40.dp) // Размер фона
-                .background(
-                    color = colorResource(R.color.background_grey).copy(alpha = 0.4f), // Цвет фона
-                    shape = CircleShape // Круглая форма
-                )
-                .padding(8.dp) // Отступ внутри фона
-                .align(Alignment.TopEnd)
-        ) {
-            IconButton(onClick = onClick) {
-                Icon(
-                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                    contentDescription = "Избранное",
-                    tint = if (isFavorite) Color.Red else Color.White // Цвет иконки
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun BackIconButton(navController: NavController) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(40.dp) // Размер фона
-                .background(
-                    color = colorResource(R.color.background_grey).copy(alpha = 0.4f), // Цвет фона
-                    shape = CircleShape // Круглая форма
-                )
-                .padding(8.dp) // Отступ внутри фона
-                .align(Alignment.TopStart)
-        ) {
-            IconButton(onClick = { navController.navigate("main_screen") }) {
-                Icon(
-                    imageVector = Icons.Outlined.KeyboardArrowLeft,
-                    contentDescription = "Назад",
-                    tint = Color.White // Цвет иконки
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun HorizontalScroll() {
-    // Состояние, которое отслеживает активную кнопку
-    var selectedButton by remember { mutableStateOf(0) }
+    var selectedButton by remember { mutableIntStateOf(0) }
 
-    // Создаем состояние прокрутки
     val scrollState = rememberScrollState()
 
-    // Оборачиваем Row в horizontalScroll
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .horizontalScroll(scrollState), // Включаем горизонтальную прокрутку
+            .horizontalScroll(scrollState),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Кнопки
         Button(
             selectedButton = selectedButton,
             buttonIndex = 0,
@@ -331,9 +265,6 @@ fun Button(
     onClick: () -> Unit,
     text: String
 ) {
-    val interFont = FontFamily(
-        Font(R.font.inter, FontWeight.Normal)
-    )
     Button(
         onClick = onClick,
         modifier = Modifier.padding(4.dp),
@@ -358,7 +289,9 @@ fun returnSp(selectedButton: Boolean): Int {
 }
 
 @Composable
-fun AdditionalInfo(place: Place) {
+fun AdditionalInfo(
+    place: Place
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -375,17 +308,19 @@ fun AdditionalInfo(place: Place) {
 }
 
 @Composable
-fun IconText(icon: ImageBitmap, text: String) {
-    val robotoFont = FontFamily(Font(R.font.roboto, FontWeight.Normal))
+fun IconText(
+    icon: ImageBitmap,
+    text: String
+) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
             modifier = Modifier
-                .size(40.dp) // Размер фона
+                .size(40.dp)
                 .background(
-                    color = Color(0xFFEDEDED), // Цвет фона
-                    shape = RoundedCornerShape(12.dp) // Круглая форма
+                    color = Color(0xFFEDEDED),
+                    shape = RoundedCornerShape(12.dp)
                 )
-                .padding(8.dp) // Отступ внутри фона
+                .padding(8.dp)
         ) {
             Image(
                 bitmap = icon,
