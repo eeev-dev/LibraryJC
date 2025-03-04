@@ -7,9 +7,7 @@ import kotlin.random.Random
 
 class ProductRepository {
     suspend fun getPlaces(): List<Place> {
-        val products = RetrofitInstance.api.getProducts().products
-
-        // for(i in products.indices) Log.d("AAAAAAAAAAAAAAAAAAAAAAAA", i.toString() + " " + products[i].brand)
+        val products = RetrofitInstance.productApi.getProducts().products
 
         return products.map { product ->
             Place(

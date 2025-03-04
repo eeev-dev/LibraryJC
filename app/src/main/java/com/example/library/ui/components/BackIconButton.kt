@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.library.R
@@ -39,7 +40,7 @@ fun BackIconButton(navController: NavController) {
             IconButton(onClick = { navController.navigate("main_screen") }) {
                 Icon(
                     imageVector = Icons.Outlined.KeyboardArrowLeft,
-                    contentDescription = "Назад",
+                    contentDescription = stringResource(R.string.back),
                     tint = Color.White
                 )
             }

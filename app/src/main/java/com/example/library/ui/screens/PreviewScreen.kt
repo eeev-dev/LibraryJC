@@ -26,6 +26,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -69,7 +70,7 @@ fun PreviewScreen(navController: NavController) {
                 }
             ) {
                 Text(
-                    text = "Travel",
+                    text = stringResource(R.string.travel),
                     color = Color.White,
                     fontSize = 44.sp,
                     fontFamily = lobsterFont,
@@ -77,14 +78,14 @@ fun PreviewScreen(navController: NavController) {
                 )
                 Image(
                     bitmap = ImageBitmap.imageResource(R.drawable.travel),
-                    contentDescription = "icon",
+                    contentDescription = stringResource(R.string.icon),
                     Modifier
                         .height(36.dp)
                         .width(36.dp)
                 )
             }
             Text(
-                text = "Найдите место своей мечты вместе с нами",
+                text = stringResource(R.string.dream_place),
                 color = Color.White,
                 fontSize = 20.sp,
                 fontFamily = robotoFont,

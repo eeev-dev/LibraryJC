@@ -6,30 +6,41 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.library.App
+import com.example.library.BuildConfig
 import com.example.library.data.local.AppDatabase
 import com.example.library.data.local.PlaceEntity
 import com.example.library.data.local.toEntity
 import com.example.library.data.local.toPlace
+import com.example.library.data.model.Image
 import com.example.library.data.model.Place
-import com.example.library.data.network.UnsplashImage
+import com.example.library.data.network.RetrofitInstance
 import com.example.library.data.repository.ProductRepository
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import com.example.library.data.network.UnsplashImage
 
-class DetailsViewModel(val database: AppDatabase) : ViewModel() {
+class ImagesViewModel(val database: AppDatabase) : ViewModel() {
+    private val _images = MutableStateFlow<List<UnsplashImage>>(emptyList())
+    val images: StateFlow<List<UnsplashImage>> = _images
 
-    var place: Place? = null
-
-    fun getPlace(id: Int) = viewModelScope.launch {
-        place = database.dao.getItem(id)?.toPlace()
+    init {
+        fetchImages()
     }
 
-    fun toLike(likedPlace: PlaceEntity) = viewModelScope.launch {
-        database.dao.insertItem(likedPlace)
+    private fun fetchImages() {
+        viewModelScope.launch {
+            try {
+                _images.value = RetrofitInstance.imageApi.getImages(
+                    apiKey = BuildConfig.UNSPLASH_API_KEY,
+                    query = "nature"
+                ).results
+            } catch (e: Exception) {
+                Log.e("ImageViewModel", "Ошибка при загрузке данных", e)
+            }
+        }
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -38,8 +49,9 @@ class DetailsViewModel(val database: AppDatabase) : ViewModel() {
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
                 val database =
                     (checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]) as App).database
-                return DetailsViewModel(database) as T
+                return ImagesViewModel(database) as T
             }
         }
     }
+
 }

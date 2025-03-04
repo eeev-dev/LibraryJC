@@ -1,12 +1,28 @@
+import java.util.Properties
+import java.io.File
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("kotlin-kapt")
 }
 
+val localProperties = File(rootProject.rootDir, "local.properties")
+val properties = Properties().apply {
+    if (localProperties.exists()) {
+        load(localProperties.inputStream())
+    } else {
+        println("⚠️ Файл local.properties не найден! API-ключ не будет загружен.")
+    }
+}
+
 android {
     namespace = "com.example.library"
     compileSdk = 35
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "com.example.library"
@@ -14,6 +30,8 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField("String", "UNSPLASH_API_KEY", "\"${project.findProperty("UNSPLASH_API_KEY")}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -28,6 +46,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "UNSPLASH_API_KEY", "\"${properties.getProperty("UNSPLASH_API_KEY")}\"")
+        }
+        debug {
+            buildConfigField("String", "UNSPLASH_API_KEY", "\"${properties.getProperty("UNSPLASH_API_KEY")}\"")
         }
     }
     compileOptions {
@@ -51,6 +73,8 @@ android {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+
     // Room
     implementation(libs.androidx.room.common)
     implementation("androidx.room:room-ktx:2.5.1")

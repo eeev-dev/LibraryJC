@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">Library</string>
+    <string name="popular_places">Популярные места</string>
+    <string name="icon">icon</string>
+    <string name="price">Цена</string>
+    <string name="location">Местоположение</string>
+    <string name="place_image">Изображение места</string>
+    <string name="hour">ч</string>
+    <string name="book_now">Забронировать сейчас</string>
+    <string name="greeting">Привет, Диана 👋</string>
+    <string name="explore_the_world">Исследуйте мир</string>
+    <string name="most_viewed">Самые просматриваемые</string>
+    <string name="neaby">Рядом</string>
+    <string name="recently">Последние</string>
+    <string name="favorites">Избранное</string>
+    <string name="travel">Travel</string>
+    <string name="dream_place">Найдите место своей мечты вместе с нами</string>
+    <string name="back">Назад</string>
+    <string name="search">Поиск…</string>
+    <string name="filter">Filter</string>
 </resources>

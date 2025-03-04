@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.library.R
 
@@ -42,7 +43,7 @@ fun FavoriteIconButton(
             IconButton(onClick = onClick) {
                 Icon(
                     imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                    contentDescription = "Избранное",
+                    contentDescription = stringResource(R.string.favorites),
                     tint = if (isLiked) Color.Red else Color.White
                 )
             }
