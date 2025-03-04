@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("kotlin-kapt")
+    kotlin("plugin.serialization")
 }
 
 val localProperties = File(rootProject.rootDir, "local.properties")
@@ -73,7 +74,9 @@ android {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+    implementation("com.google.accompanist:accompanist-flowlayout:0.26.0-alpha")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
     // Room
     implementation(libs.androidx.room.common)

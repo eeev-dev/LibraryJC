@@ -48,6 +48,8 @@ import com.example.library.ui.components.FavoriteIconButton
 import com.example.library.ui.theme.robotoFont
 import com.example.library.viewmodel.ImagesViewModel
 import com.example.library.viewmodel.MainViewModel
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 @Composable
 fun ImageItem(
@@ -55,7 +57,6 @@ fun ImageItem(
     navController: NavController,
     viewModel: ImagesViewModel
 ) {
-    val deepLinkUri = Uri.parse("android-app://androidx.navigation/details_screen/${image.id}")
     val painter =
         rememberAsyncImagePainter(
             ImageRequest.Builder(LocalContext.current).data(
@@ -73,10 +74,11 @@ fun ImageItem(
             .padding(horizontal = 10.dp, vertical = 8.dp)
             .aspectRatio(7f / 10f)
     ) {
+        val serializedImage = Json.encodeToString(image)
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .clickable { navController.navigate(deepLinkUri) }) {
+                .clickable { navController.navigate("image_details/${Uri.encode(serializedImage)}") } ) {
 
             Image(
                 painter = painter,

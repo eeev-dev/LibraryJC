@@ -29,7 +29,6 @@ class ImagesViewModel(val database: AppDatabase) : ViewModel() {
     init {
         fetchImages()
     }
-
     private fun fetchImages() {
         viewModelScope.launch {
             try {
