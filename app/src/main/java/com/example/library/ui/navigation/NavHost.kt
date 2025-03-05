@@ -5,11 +5,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
-import com.example.library.data.network.UnsplashImage
+import com.example.library.data.model.UnsplashImage
 import com.example.library.ui.screens.details.DetailsScreen
 import com.example.library.ui.screens.home.MainScreen
 import com.example.library.ui.screens.PreviewScreen
-import com.example.library.ui.screens.image_details.ImageDetailsScreen
+import com.example.library.ui.screens.images.ImageDetailsScreen
 import com.example.library.ui.screens.images.ImagesScreen
 import kotlinx.serialization.json.Json
 

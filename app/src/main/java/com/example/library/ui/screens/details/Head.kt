@@ -1,5 +1,6 @@
 package com.example.library.ui.screens.details
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -38,6 +39,8 @@ import com.example.library.data.local.toEntity
 import com.example.library.data.model.Place
 import com.example.library.ui.components.BackIconButton
 import com.example.library.ui.components.FavoriteIconButton
+import com.example.library.ui.components.FloatingBoxInDetails
+import com.example.library.ui.components.ImageBox
 import com.example.library.ui.theme.interFont
 import com.example.library.ui.theme.robotoFont
 import com.example.library.viewmodel.DetailsViewModel
@@ -48,14 +51,6 @@ fun ImageHead(
     navController: NavController,
     viewModel: DetailsViewModel
 ) {
-    val painter = rememberAsyncImagePainter(
-        ImageRequest.Builder(LocalContext.current)
-            .data(data = place.imageLink)
-            .apply(block = fun ImageRequest.Builder.() {
-                crossfade(true)
-            }
-            ).build()
-    )
     Card(
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
@@ -64,23 +59,24 @@ fun ImageHead(
             .height(400.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            Image(
-                painter = painter,
-                contentDescription = stringResource(R.string.place_image),
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
 
             var isLiked by remember { mutableStateOf(place.isFavorite) }
 
-            FavoriteIconButton(isLiked) {
-                isLiked = !isLiked
-                viewModel.toLike(place.toEntity().copy(isFavorite = isLiked))
-            }
+            ImageBox(
+                imageLink = place.imageLink,
+                isLiked = isLiked,
+                onLikeClick = { newState ->
+                    isLiked = newState
+                    viewModel.toLike(
+                        place.toEntity().copy(isFavorite = newState)
+                    )
+                }
+            )
 
             BackIconButton(navController)
 
-            Box(
+            FloatingBoxInDetails(
+                place,
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
@@ -89,56 +85,7 @@ fun ImageHead(
                         Color.Black.copy(alpha = 0.5f),
                         shape = RoundedCornerShape(16.dp)
                     )
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(
-                        modifier = Modifier
-                            .weight(3f)
-                            .padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
-                    ) {
-                        Text(
-                            text = place.place,
-                            fontFamily = interFont,
-                            fontSize = 24.sp,
-                            color = Color.White
-                        )
-                        Row {
-                            Icon(
-                                imageVector = Icons.Rounded.LocationOn,
-                                contentDescription = stringResource(R.string.location),
-                                tint = colorResource(R.color.pale_grey)
-                            )
-                            Text(
-                                text = place.country,
-                                fontFamily = robotoFont,
-                                fontSize = 18.sp,
-                                color = colorResource(R.color.pale_grey)
-                            )
-                        }
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .padding(end = 16.dp, bottom = 16.dp)
-                            .weight(2f)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.price),
-                            color = colorResource(R.color.pale_grey),
-                            fontFamily = robotoFont,
-                            fontSize = 16.sp,
-                            modifier = Modifier.align(Alignment.End)
-                        )
-                        Text(
-                            text = "$${place.price}",
-                            color = colorResource(R.color.pale_grey),
-                            fontFamily = robotoFont,
-                            fontSize = 20.sp,
-                            modifier = Modifier.align(Alignment.End)
-                        )
-                    }
-                }
-            }
+            )
         }
     }
 }
