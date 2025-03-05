@@ -8,19 +8,11 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.library.App
 import com.example.library.BuildConfig
 import com.example.library.data.local.AppDatabase
-import com.example.library.data.local.PlaceEntity
-import com.example.library.data.local.toEntity
-import com.example.library.data.local.toPlace
-import com.example.library.data.model.Image
-import com.example.library.data.model.Place
+import com.example.library.data.model.UnsplashImage
 import com.example.library.data.network.RetrofitInstance
-import com.example.library.data.repository.ProductRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import com.example.library.data.network.UnsplashImage
 
 class ImagesViewModel(val database: AppDatabase) : ViewModel() {
     private val _images = MutableStateFlow<List<UnsplashImage>>(emptyList())
@@ -29,6 +21,7 @@ class ImagesViewModel(val database: AppDatabase) : ViewModel() {
     init {
         fetchImages()
     }
+
     private fun fetchImages() {
         viewModelScope.launch {
             try {
@@ -52,5 +45,4 @@ class ImagesViewModel(val database: AppDatabase) : ViewModel() {
             }
         }
     }
-
 }
