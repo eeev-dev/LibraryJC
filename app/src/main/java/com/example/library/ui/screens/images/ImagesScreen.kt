@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.library.data.local.image.toEntity
 import com.example.library.ui.components.BottomDrawer
 import com.example.library.ui.components.ImageBox
 import com.example.library.ui.components.LoadingScreen
@@ -67,14 +68,17 @@ fun ImagesScreen(
                                 .aspectRatio(7f / 10f)
                         ) {
                             val serializedImage = Json.encodeToString(image)
-                            var isLiked by remember { mutableStateOf(false) }
+                            var isLiked by remember { mutableStateOf(image.isFavorite) }
 
                             Box (modifier = Modifier.fillMaxSize()) {
                                 image.urls.regular?.let {
                                     ImageBox(
                                         imageLink = it,
-                                        navigate = { navController.navigate("image_details/${Uri.encode(serializedImage)}") },
-                                        isLiked = isLiked) { }
+                                        action = { navController.navigate("image_details/${image.id}") },
+                                        isLiked = isLiked) { newState ->
+                                        isLiked = newState
+                                        viewModel.toLike(image.copy(isFavorite = isLiked).toEntity())
+                                    }
                                 }
                             }
                         }

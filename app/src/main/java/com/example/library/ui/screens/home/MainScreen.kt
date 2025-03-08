@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.library.R
-import com.example.library.data.local.toEntity
+import com.example.library.data.local.place.toEntity
 import com.example.library.data.model.Place
 import com.example.library.ui.components.BottomDrawer
 import com.example.library.ui.components.FloatingBoxInMain
@@ -69,9 +69,7 @@ fun MainScreen(
             darkIcons = true
         )
     }
-
-    if (places.isEmpty()) LoadingScreen()
-    else Box(
+    Box(
         Modifier
             .fillMaxSize()
             .background(Color.White)
@@ -110,46 +108,44 @@ fun MainContent(
                 items(places) { place ->
                     var isLiked by remember { mutableStateOf(place.isFavorite) }
 
-                    Card(
-                        shape = RoundedCornerShape(16.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
-                        modifier = Modifier
-                            .size(250.dp, 350.dp)
-                            .padding(horizontal = 10.dp)
-                    ) {
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            ImageBox(
-                                imageLink = place.imageLink,
-                                navigate = {
-                                    navController
-                                        .navigate(
-                                            Uri.parse("android-app://androidx.navigation/details_screen/${place.id}")
+                    if (places.isEmpty()) { LoadingScreen() }
+                    else {
+                        Card(
+                            shape = RoundedCornerShape(16.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
+                            modifier = Modifier
+                                .size(250.dp, 350.dp)
+                                .padding(horizontal = 10.dp)
+                        ) {
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                ImageBox(
+                                    imageLink = place.imageLink,
+                                    action = {
+                                        navController
+                                            .navigate(
+                                                Uri.parse("android-app://androidx.navigation/details_screen/${place.id}")
+                                            )
+                                    },
+                                    isLiked = isLiked) { newState ->
+                                    isLiked = newState
+                                    mainViewModel.toLike(
+                                        place.toEntity().copy(isFavorite = newState)
+                                    )
+                                }
+                                FloatingBoxInMain(
+                                    place,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .align(Alignment.BottomCenter)
+                                        .padding(16.dp)
+                                        .background(
+                                            Color.Black.copy(alpha = 0.5f),
+                                            shape = RoundedCornerShape(16.dp)
                                         )
-                                },
-                                isLiked = isLiked) { newState ->
-                                isLiked = newState
-                                mainViewModel.toLike(
-                                    place.toEntity().copy(isFavorite = newState)
                                 )
                             }
-                            FloatingBoxInMain(
-                                place,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .align(Alignment.BottomCenter)
-                                    .padding(16.dp)
-                                    .background(
-                                        Color.Black.copy(alpha = 0.5f),
-                                        shape = RoundedCornerShape(16.dp)
-                                    )
-                            )
                         }
                     }
-                    /*PlaceItem(
-                        place = place,
-                        mainViewModel = mainViewModel,
-                        navController = navController
-                    )*/
                 }
             }
         }

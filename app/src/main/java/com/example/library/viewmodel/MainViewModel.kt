@@ -7,9 +7,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.library.App
 import com.example.library.data.local.AppDatabase
-import com.example.library.data.local.PlaceEntity
-import com.example.library.data.local.toEntity
-import com.example.library.data.local.toPlace
+import com.example.library.data.local.place.PlaceEntity
+import com.example.library.data.local.place.toEntity
+import com.example.library.data.local.place.toPlace
 import com.example.library.data.model.Place
 import com.example.library.data.repository.ProductRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,19 +19,19 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 class MainViewModel(val database: AppDatabase) : ViewModel() {
-    val itemsList = database.dao.getAllItems()
-
     private val _places = MutableStateFlow<List<Place>>(emptyList())
     val places: StateFlow<List<Place>> = _places
 
+    val placesList = database.placeDao.getAllItems()
+
     fun toLike(likedPlace: PlaceEntity) = viewModelScope.launch {
-        database.dao.insertItem(likedPlace)
+        database.placeDao.insertItem(likedPlace)
     }
 
     init {
         viewModelScope.launch {
             try {
-                itemsList
+                placesList
                     .catch { e -> Log.e("PlaceViewModel", "Ошибка при загрузке данных из Room", e) }
                     .distinctUntilChanged()
                     .collect { itemsList ->
@@ -53,7 +53,7 @@ class MainViewModel(val database: AppDatabase) : ViewModel() {
         viewModelScope.launch {
             try {
                 _places.value = ProductRepository().getPlaces()
-                database.dao.insertItems(_places.value.map { it.toEntity() })
+                database.placeDao.insertItems(_places.value.map { it.toEntity() })
             } catch (e: Exception) {
                 Log.e("PlaceViewModel", "Ошибка при загрузке данных", e)
             }

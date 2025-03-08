@@ -6,21 +6,25 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.library.App
 import com.example.library.data.local.AppDatabase
-import com.example.library.data.local.place.PlaceEntity
-import com.example.library.data.local.place.toPlace
-import com.example.library.data.model.Place
+import com.example.library.data.local.image.ImageEntity
+import com.example.library.data.local.image.toUnsplash
+import com.example.library.data.model.UnsplashImage
 import kotlinx.coroutines.launch
 
-class DetailsViewModel(val database: AppDatabase) : ViewModel() {
+class ImageViewModel(val database: AppDatabase) : ViewModel() {
 
-    var place: Place? = null
+    var image: UnsplashImage? = null
 
-    fun getPlace(id: Int) = viewModelScope.launch {
-        place = database.placeDao.getItem(id)?.toPlace()
+    fun getImage(id: String) = viewModelScope.launch {
+        image = database.imageDao.getItem(id)?.toUnsplash()
     }
 
-    fun toLike(likedPlace: PlaceEntity) = viewModelScope.launch {
-        database.placeDao.insertItem(likedPlace)
+    fun toLike(likedImage: ImageEntity) = viewModelScope.launch {
+        database.imageDao.insertItem(likedImage)
+    }
+
+    fun toRate(ratedImage: ImageEntity) = viewModelScope.launch {
+        database.imageDao.insertItem(ratedImage)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -29,7 +33,7 @@ class DetailsViewModel(val database: AppDatabase) : ViewModel() {
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
                 val database =
                     (checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]) as App).database
-                return DetailsViewModel(database) as T
+                return ImageViewModel(database) as T
             }
         }
     }

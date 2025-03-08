@@ -1,9 +1,7 @@
 package com.example.library.data.repository
 
-import android.util.Log
 import com.example.library.data.model.Place
 import com.example.library.data.network.RetrofitInstance
-import kotlin.random.Random
 
 class ProductRepository {
     suspend fun getPlaces(): List<Place> {

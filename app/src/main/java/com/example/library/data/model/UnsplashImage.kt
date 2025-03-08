@@ -6,9 +6,10 @@ import kotlinx.serialization.Serializable
 data class UnsplashImage(
     val id: String,
     val description: String?,
-    val tags: List<String>?,
     val urls: ImageUrls,
-    val user: User?
+    val user: User?,
+    val rating: Int = 0,
+    val isFavorite: Boolean = false
 )
 
 @Serializable

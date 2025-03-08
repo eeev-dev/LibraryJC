@@ -8,7 +8,7 @@
     <string name="hour">ч</string>
     <string name="book_now">Забронировать сейчас</string>
     <string name="greeting">Привет, Диана 👋</string>
-    <string name="explore_the_world">Исследуйте мир</string>
+    <string name="explore_the_world">Исследуйте мир ↗</string>
     <string name="most_viewed">Самые просматриваемые</string>
     <string name="neaby">Рядом</string>
     <string name="recently">Последние</string>
@@ -18,4 +18,5 @@
     <string name="back">Назад</string>
     <string name="search">Поиск…</string>
     <string name="filter">Filter</string>
+    <string name="share">Поделиться</string>
 </resources>

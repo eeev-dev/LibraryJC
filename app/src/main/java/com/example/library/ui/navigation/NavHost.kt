@@ -4,38 +4,29 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navDeepLink
-import com.example.library.data.model.UnsplashImage
+import com.example.library.ui.screens.Preview
+import com.example.library.ui.screens.PreviewScreen
 import com.example.library.ui.screens.details.DetailsScreen
 import com.example.library.ui.screens.home.MainScreen
-import com.example.library.ui.screens.PreviewScreen
 import com.example.library.ui.screens.images.ImageDetailsScreen
 import com.example.library.ui.screens.images.ImagesScreen
-import kotlinx.serialization.json.Json
 
 @Composable
 fun AppNavHost(
     navController: NavHostController
 ) {
-    NavHost(navController = navController, startDestination = "preview_screen") {
+    NavHost(navController = navController, startDestination = "main_screen") {
         composable("preview_screen") { PreviewScreen(navController) }
         composable("main_screen") { MainScreen(navController) }
+        composable("preview") { Preview(navController) }
         composable("images_screen") { ImagesScreen(navController) }
-        composable(
-            "details_screen/{id}",
-            deepLinks = listOf(navDeepLink { uriPattern = "android-app://androidx.navigation/details_screen/{id}" })
-        ) { backStackEntry ->
-            val idString = backStackEntry.arguments?.getString("id") ?: ""
-            val id = idString.toIntOrNull() ?: 0
+        composable("details_screen/{id}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")?.toInt() ?: 0
             DetailsScreen(navController, id)
         }
-        composable("image_details/{imageData}") { backStackEntry ->
-            val imageData = backStackEntry.arguments?.getString("imageData")
-
-            if (imageData != null) {
-                val unsplashImage = Json.decodeFromString<UnsplashImage>(imageData)
-                ImageDetailsScreen(navController, unsplashImage)
-            }
+        composable("image_details/{id}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id") ?: ""
+            ImageDetailsScreen(navController, id)
         }
     }
 }

@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -47,7 +49,8 @@ fun Head(navController: NavController) {
                     text = stringResource(R.string.explore_the_world),
                     fontFamily = interFont,
                     fontSize = 20.sp,
-                    color = colorResource(R.color.grey)
+                    color = colorResource(R.color.grey),
+                    style = TextStyle(textDecoration = TextDecoration.Underline)
                 )
             }
             Image(
